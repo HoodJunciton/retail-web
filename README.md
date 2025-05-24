@@ -1,65 +1,54 @@
-# Retailer Web
+# React + TypeScript + Vite
 
-A comprehensive retail management solution built with Next.js, Redux, and Material UI.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-- Modern UI with Material UI components
-- State management with Redux Toolkit
-- Dark mode toggle
-- Responsive design with Tailwind CSS
-- Type safety with TypeScript
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Project Structure
+## Expanding the ESLint configuration
 
-```
-retailer-web/
-├── app/                  # Next.js app directory
-│   ├── globals.css       # Global styles
-│   ├── layout.tsx        # Root layout component
-│   └── page.tsx          # Home page component
-├── components/           # Reusable components
-│   └── layouts/          # Layout components
-│       └── MainLayout.tsx # Main application layout
-├── store/                # Redux store
-│   ├── index.ts          # Store configuration
-│   └── slices/           # Redux slices
-│       └── uiSlice.ts    # UI state slice
-```
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 14.x or later
-- npm or yarn
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-
-```bash
-npm install
-# or
-yarn install
+```js
+export default tseslint.config({
+  extends: [
+    // Remove ...tseslint.configs.recommended and replace with this
+    ...tseslint.configs.recommendedTypeChecked,
+    // Alternatively, use this for stricter rules
+    ...tseslint.configs.strictTypeChecked,
+    // Optionally, add this for stylistic rules
+    ...tseslint.configs.stylisticTypeChecked,
+  ],
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
 ```
 
-3. Run the development server:
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```bash
-npm run dev
-# or
-yarn dev
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default tseslint.config({
+  plugins: {
+    // Add the react-x and react-dom plugins
+    'react-x': reactX,
+    'react-dom': reactDom,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended typescript rules
+    ...reactX.configs['recommended-typescript'].rules,
+    ...reactDom.configs.recommended.rules,
+  },
+})
 ```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
-
-## Technologies Used
-
-- Next.js - React framework
-- Redux Toolkit - State management
-- Material UI - Component library
-- Tailwind CSS - Utility-first CSS framework
-- TypeScript - Type checking
-- Husky - Git hooks
