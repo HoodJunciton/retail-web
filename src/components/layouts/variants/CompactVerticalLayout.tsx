@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -15,8 +15,7 @@ import {
   Select,
   FormControl,
   InputLabel,
-  // MenuItem is already imported for Menu, ensure it's available for Select too
-  Typography as MuiTypography, // Alias to avoid conflict if Typography is used elsewhere
+  Typography as MuiTypography,
   List,
   ListItem,
   ListItemIcon,
@@ -35,12 +34,9 @@ import type { TransitionProps } from '@mui/material/transitions';
 import { useNavigate } from 'react-router-dom';
 import { useSettings } from '../../../hooks/useSettings';
 import LayoutSwitcher from '../../LayoutSwitcher';
-// import { useSelector } from 'react-redux'; // No longer needed
-// import type { RootState } from '../../../store'; // No longer needed
 
 import {
   Drawer,
-  // List, ListItem, ListItemIcon, ListItemText are being added above or already exist
   ListItemButton,
   Popper,
   Paper,
@@ -49,56 +45,45 @@ import {
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
-  MiscellaneousServices as ServicesIcon, // Example, find appropriate icon
-  Assessment as ReportsIcon,       // Example
-  SupportAgent as SupportIcon,     // Example
-  // Settings as SettingsIcon, // Already imported
-  // ExitToApp as ExitToAppIcon, // Already imported
+  MiscellaneousServices as ServicesIcon, 
+  Assessment as ReportsIcon,      
+  SupportAgent as SupportIcon,    
 } from '@mui/icons-material';
 
-interface AppTopBarLayoutProps {
+interface CompactVerticalLayoutProps {
   children: React.ReactNode;
 }
-
-// const drawerWidth = 90; // Width for the collapsed-style sidebar shown in image - REMOVED
 
 const sidebarItems = [
   { id: 'dashboard', text: 'Dashboard', icon: <DashboardIcon />, content: 'dashboard_content' },
   { id: 'services', text: 'Services', icon: <ServicesIcon />, content: 'services_content' },
   { id: 'reports', text: 'Reports', icon: <ReportsIcon />, content: 'reports_content' },
   { id: 'support', text: 'Support', icon: <SupportIcon />, content: 'support_content' },
-  { id: 'settings', text: 'Settings', icon: <SettingsIcon />, content: 'settings_content' }, // Re-using existing icon
-  { id: 'logout', text: 'Logout', icon: <ExitToAppIcon />, content: 'logout_content' },   // Re-using existing icon
+  { id: 'settings', text: 'Settings', icon: <SettingsIcon />, content: 'settings_content' }, 
+  { id: 'logout', text: 'Logout', icon: <ExitToAppIcon />, content: 'logout_content' },   
 ];
 
-export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
+export default function CompactVerticalLayout({ children }: CompactVerticalLayoutProps) {
   const navigate = useNavigate();
   const {
     themeMode,
     toggleTheme,
     colorScheme,
     setColorScheme,
-    sidebarVariant,
+    sidebarVariant, // Still used by settings drawer and potentially ListItemText, but not for drawer width
     setSidebarVariant,
     appBarDense,
     setAppBarDense,
   } = useSettings();
 
-  const currentDrawerWidth = useMemo(() => {
-    if (sidebarVariant === 'full') {
-      return 240; // Standard full sidebar width
-    }
-    return 70; // Mini variant width for icons only
-  }, [sidebarVariant]);
+  // For CompactVerticalLayout, currentDrawerWidth is always the mini variant width.
+  const currentDrawerWidth = 70; // Fixed mini variant width
 
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState<boolean>(false);
-  // const { navbarPosition } = useSelector((state: RootState) => state.settings); // No longer needed as AppBar is fixed
 
-  // State for sidebar popover
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPopoverContent, setSelectedPopoverContent] = useState<string | null>(null);
-  // const [arrowRef, setArrowRef] = useState<HTMLElement | null>(null); // Arrow state removed
   const open = Boolean(popoverAnchorEl);
 
   const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -133,35 +118,30 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
   };
 
   const handleLogout = () => {
-    // Implement logout logic here
     console.log('Logout clicked');
     handleUserMenuClose();
-    // navigate('/login'); // Example redirect after logout
   };
 
   const handleSettings = () => {
-    // Implement settings navigation or action
     console.log('Settings clicked');
     handleUserMenuClose();
-    // navigate('/settings'); // Example redirect to settings
   };
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <AppBar
-        position="fixed" // AppBar should be fixed
+        position="fixed"
         elevation={0}
         sx={{
           width: `calc(100% - ${currentDrawerWidth}px)`,
-          ml: `${currentDrawerWidth}px`, // Offset by drawer width
-          zIndex: (theme) => theme.zIndex.drawer + 1, // Ensure AppBar is above Drawer
+          ml: `${currentDrawerWidth}px`,
+          zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: (theme) => theme.palette.background.paper,
           borderBottom: (theme) => `1px solid ${alpha(theme.palette.divider, 0.12)}`,
           color: (theme) => theme.palette.primary.main,
         }}
       >
         <Toolbar variant={appBarDense ? 'dense' : 'regular'}>
-          {/* Left Section: Home Icon */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip title="Home">
               <IconButton color="inherit" onClick={() => navigate('/')} aria-label="home">
@@ -169,8 +149,6 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
               </IconButton>
             </Tooltip>
           </Box>
-
-          {/* Center Section: Search Bar */}
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', px: 2 }}>
             <InputBase
               placeholder="Search Transaction..."
@@ -179,12 +157,10 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
                 backgroundColor: alpha('#000', 0.05),
                 borderRadius: 1,
                 padding: '2px 10px',
-                width: 'clamp(200px, 50%, 400px)', // Responsive width
+                width: 'clamp(200px, 50%, 400px)',
               }}
             />
           </Box>
-
-          {/* Right Section: Info texts, Refresh, User Icon */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 'medium' }}>
               PREPAID 32371.99
@@ -210,7 +186,6 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
                 <SettingsIcon />
               </IconButton>
             </Tooltip>
-            {/* User Profile Menu */}
             <Menu
               anchorEl={userMenuAnchor}
               open={Boolean(userMenuAnchor)}
@@ -232,62 +207,61 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
           </Box>
         </Toolbar>
       </AppBar>
-      {/* Sidebar Drawer */}
       <Drawer
         variant="permanent"
         sx={{
-          width: currentDrawerWidth,
+          width: currentDrawerWidth, // Fixed mini width
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: currentDrawerWidth,
+            width: currentDrawerWidth, // Fixed mini width
             boxSizing: 'border-box',
             backgroundColor: (theme) => theme.palette.background.default,
             color: (theme) => theme.palette.text.primary,
+            overflowX: 'hidden', // Prevent horizontal scrollbar for mini sidebar
           },
         }}
       >
-        <Toolbar /> {/* Spacer to align content below AppBar */}
-        <Box sx={{ overflow: 'auto', pt: 2 }}>
+        <Toolbar /> 
+        <Box sx={{ overflowY: 'auto', overflowX: 'hidden', pt: 2 }}>
           <List>
             {sidebarItems.map((item) => (
               <ListItem key={item.id} disablePadding sx={{ display: 'block' }}>
-                <ListItemButton
-                  onClick={(event) => handleSidebarItemClick(event, item.content)}
-                  sx={{
-                    minHeight: 48,
-                    flexDirection: 'column', // Icon above text
-                    justifyContent: 'center',
-                    px: 2.5,
-                    py: 1.5, // Added padding for better spacing
-                    mb: 1, // Margin between items
-                    color: (theme) => popoverAnchorEl?.id === item.id + '-button' ? theme.palette.primary.main : theme.palette.text.primary,
-                    backgroundColor: (theme) => popoverAnchorEl?.id === item.id + '-button' ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
-                    '&:hover': {
-                      backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.2),
-                    },
-                  }}
-                  id={item.id + '-button'} // For anchoring and highlighting
-                >
-                  <ListItemIcon sx={{ minWidth: 0, justifyContent: 'center', color: (theme) => theme.palette.primary.main }}>
-                    {item.icon}
-                  </ListItemIcon>
-                  {sidebarVariant === 'full' && (
-                    <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: '0.75rem', textAlign: 'center' }} />
-                  )}
-                </ListItemButton>
+                <Tooltip title={item.text} placement="right"> {/* Tooltip always shows text as sidebar is mini */}
+                  <ListItemButton
+                    onClick={(event) => handleSidebarItemClick(event, item.content)}
+                    sx={{
+                      minHeight: 48,
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      px: 2.5,
+                      py: 1.5, 
+                      mb: 1, 
+                      color: (theme) => popoverAnchorEl?.id === item.id + '-button' ? theme.palette.primary.main : theme.palette.text.primary,
+                      backgroundColor: (theme) => popoverAnchorEl?.id === item.id + '-button' ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+                      '&:hover': {
+                        backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.2),
+                      },
+                    }}
+                    id={item.id + '-button'}
+                  >
+                    <ListItemIcon sx={{ minWidth: 0, justifyContent: 'center', color: (theme) => theme.palette.primary.main }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    {/* ListItemText is removed as Tooltip provides the text for this always-mini layout */}
+                  </ListItemButton>
+                </Tooltip>
               </ListItem>
             ))}
           </List>
         </Box>
       </Drawer>
 
-      {/* Main Content Area */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          mt: '64px', // Height of AppBar
+          mt: '64px',
           ml: `${currentDrawerWidth}px`,
           width: `calc(100% - ${currentDrawerWidth}px)`,
         }}
@@ -295,38 +269,22 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
         {children}
       </Box>
 
-      {/* Floating Popover Menu */}
       <Popper
         open={open}
         anchorEl={popoverAnchorEl}
         placement="right-start"
         transition
-        disablePortal // Keep within the layout flow for now
+        disablePortal
         modifiers={[
-          {
-            name: 'offset',
-            options: {
-              offset: [0, 10], // Adjust offset as needed
-            },
-          },
-          {
-            name: 'flip',
-            enabled: false, // Disable flip to ensure it always opens to the right
-          },
-          // Arrow modifier removed from Popper
-          {
-            name: 'preventOverflow',
-            options: {
-              boundary: 'viewport',
-            },
-          },
+          { name: 'offset', options: { offset: [0, 10] } },
+          { name: 'flip', enabled: false },
+          { name: 'preventOverflow', options: { boundary: 'viewport' } },
         ]}
-        sx={{ zIndex: (theme: Theme) => theme.zIndex.drawer + 2 }} // Above AppBar
+        sx={{ zIndex: (theme: Theme) => theme.zIndex.drawer + 2 }}
       >
         {({ TransitionProps }: { TransitionProps?: TransitionProps }) => (
           <Grow {...TransitionProps} timeout={350}>
             <Paper elevation={3} sx={{ minWidth: 280, p: 2, position: 'relative', overflow: 'visible' }}>
-              {/* Arrow Element JSX removed */}
               <ClickAwayListener onClickAway={handlePopoverClose}>
                 <div>
                   {selectedPopoverContent === 'dashboard_content' && (
@@ -352,13 +310,12 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
         )}
       </Popper>
 
-      {/* Settings Drawer */}
       <Drawer
         anchor="right"
         open={isSettingsDrawerOpen}
         onClose={handleSettingsDrawerClose}
         PaperProps={{
-          sx: { width: 320, p: 2 } // Adjust width and padding as needed
+          sx: { width: 320, p: 2 }
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -369,7 +326,6 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
         </Box>
         <Divider sx={{ mb: 2 }} />
 
-        {/* Appearance Settings */}
         <MuiTypography variant="subtitle1" gutterBottom>Appearance</MuiTypography>
         <List dense>
           <ListItem disablePadding>
@@ -405,7 +361,6 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
 
         <Divider sx={{ my: 2 }} />
 
-        {/* Layout Settings */}
         <MuiTypography variant="subtitle1" gutterBottom>Layout</MuiTypography>
         <List dense>
           <ListItem disablePadding>
@@ -414,10 +369,11 @@ export default function AppTopBarLayout({ children }: AppTopBarLayoutProps) {
               <Select
                 labelId="sidebar-variant-select-label"
                 id="sidebar-variant-select"
-                value={sidebarVariant}
+                value={sidebarVariant} // This will reflect global context, but won't change this layout's sidebar width
                 label="Sidebar Variant"
                 onChange={(e) => setSidebarVariant(e.target.value as 'mini' | 'full')}
                 size="small"
+                // disabled // Optionally disable if this layout is active, to avoid confusion
               >
                 <MenuItem value="mini">Mini</MenuItem>
                 <MenuItem value="full">Full</MenuItem>
